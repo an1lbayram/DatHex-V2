@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'DatHex V2',
         short_name: 'DatHex V2',
-        description: 'Windows Winget Mass Upgrader',
+        description: 'Advanced Windows Package & System Manager',
         theme_color: '#0f111a',
         background_color: '#0f111a',
         display: 'standalone',

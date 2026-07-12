@@ -53,7 +53,7 @@ function App() {
   const texts = {
     tr: {
       title: 'DatHex',
-      subtitle: 'Windows Winget Toplu Güncelleyici',
+      subtitle: 'Gelişmiş Windows Paket ve Sistem Yöneticisi',
       totalUpdates: 'Toplam Güncelleme',
       selected: 'Seçilen',
       checkUpdates: 'Güncellemeleri Kontrol Et',
@@ -82,7 +82,7 @@ function App() {
     },
     en: {
       title: 'DatHex',
-      subtitle: 'Windows Winget Mass Upgrader',
+      subtitle: 'Advanced Windows Package & System Manager',
       totalUpdates: 'Total Updates',
       selected: 'Selected',
       checkUpdates: 'Check Updates',
