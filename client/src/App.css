@@ -282,8 +282,7 @@ tr:hover td {
 .scroll-top-btn {
   position: fixed;
   bottom: 3rem;
-  /* Ortadaki 1200px'lik container'ın sağ sınırının hemen dışına (10px yanına) yerleştirir */
-  left: calc(50% + 610px); 
+  left: calc(50% + 610px);
   border-radius: 50%;
   width: 56px;
   height: 56px;
@@ -298,6 +297,64 @@ tr:hover td {
 @media (max-width: 1350px) {
   .scroll-top-btn {
     left: auto;
-    right: 1rem;
+    right: 2rem;
+  }
+}
+
+/* Sidebar & Layout Styles */
+.main-layout {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  align-items: flex-start;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  padding: 1rem;
+}
+
+.content-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-color);
+  box-shadow: inset 4px 0 0 var(--accent-color);
+}
+
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
   }
 }

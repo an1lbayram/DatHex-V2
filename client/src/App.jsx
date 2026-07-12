@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { Settings, RefreshCw, Download, TerminalSquare, AlertCircle, Sun, Moon, ArrowUp, PackageOpen } from 'lucide-react';
 import Terminal from './components/Terminal';
+import Sidebar from './components/Sidebar';
+import UpgradesTab from './components/UpgradesTab';
+import StoreTab from './components/StoreTab';
+import InstalledTab from './components/InstalledTab';
+import BackupTab from './components/BackupTab';
 import './App.css';
 
 const SERVER_URL = 'http://localhost:3001';
@@ -17,6 +22,8 @@ function App() {
   const [lang, setLang] = useState('tr');
   const [theme, setTheme] = useState(localStorage.getItem('dathex-theme') || 'dark');
   const [showScroll, setShowScroll] = useState(false);
+  const [activeTab, setActiveTab] = useState('upgrades');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const checkScrollTop = () => {
@@ -58,7 +65,20 @@ function App() {
       currentVer: 'Mevcut Sürüm',
       newVer: 'Yeni Sürüm',
       noUpdates: 'Güncellenebilir uygulama bulunamadı.',
-      serverError: 'Sunucuya bağlanılamadı. Lütfen DatHex arkaplan servisinin çalıştığından emin olun.'
+      serverError: 'Sunucuya bağlanılamadı. Lütfen DatHex arkaplan servisinin çalıştığından emin olun.',
+      menuUpgrades: 'Güncellemeler',
+      menuStore: 'Uygulama Mağazası',
+      menuInstalled: 'Yüklü Uygulamalar',
+      menuBackup: 'Yedekle & Geri Yükle',
+      searchPlaceholder: 'Uygulama ara (örn. chrome, vscode)',
+      search: 'Ara',
+      noResults: 'Sonuç bulunamadı.',
+      source: 'Kaynak',
+      action: 'İşlem',
+      install: 'Yükle',
+      confirmUninstall: 'Bu uygulamayı kaldırmak istediğinize emin misiniz?',
+      backupDesc: 'Sisteminizdeki tüm yüklü uygulamaların bir listesini (.json formatında) dışa aktararak yedekleyebilirsiniz. Yeni bir bilgisayara geçtiğinizde bu dosyayı kullanarak uygulamalarınızı tek tıkla geri yükleyebilirsiniz.',
+      exportBtn: 'Yedeği Dışa Aktar'
     },
     en: {
       title: 'DatHex',
@@ -74,7 +94,20 @@ function App() {
       currentVer: 'Current Version',
       newVer: 'New Version',
       noUpdates: 'No upgradable applications found.',
-      serverError: 'Could not connect to server. Please ensure the DatHex background service is running.'
+      serverError: 'Could not connect to server. Please ensure the DatHex background service is running.',
+      menuUpgrades: 'Upgrades',
+      menuStore: 'App Store',
+      menuInstalled: 'Installed Apps',
+      menuBackup: 'Backup & Restore',
+      searchPlaceholder: 'Search apps (e.g. chrome, vscode)',
+      search: 'Search',
+      noResults: 'No results found.',
+      source: 'Source',
+      action: 'Action',
+      install: 'Install',
+      confirmUninstall: 'Are you sure you want to uninstall this application?',
+      backupDesc: 'Export a list of all your installed applications (.json format) to create a backup. You can use this file to quickly restore your apps on a new computer.',
+      exportBtn: 'Export Backup'
     }
   };
 
@@ -95,6 +128,7 @@ function App() {
 
     newSocket.on('upgrade-finished', () => {
       setIsUpgrading(false);
+      setIsProcessing(false);
       checkUpdates(); // Refresh list
     });
 
@@ -187,140 +221,40 @@ function App() {
       </header>
 
       {error && (
-        <div className="glass-panel animate-fade-in" style={{ padding: '1rem', borderColor: 'var(--error-color)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div className="glass-panel animate-fade-in" style={{ padding: '1rem', borderColor: 'var(--error-color)', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
           <AlertCircle color="var(--error-color)" />
           <span style={{ color: 'var(--error-color)' }}>{error}</span>
         </div>
       )}
 
-      <div className="stats-grid animate-fade-in">
-        <div className="glass-panel stat-card">
-          <div className="stat-icon blue">
-            <RefreshCw size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>{t.totalUpdates}</h3>
-            <p>{apps.length}</p>
-          </div>
+      <div className="main-layout">
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} t={t} />
+        
+        <div className="content-area">
+          {activeTab === 'upgrades' && (
+            <UpgradesTab 
+              apps={apps} loading={loading} error={error} selectedApps={selectedApps}
+              isUpgrading={isUpgrading} logs={logs} checkUpdates={checkUpdates}
+              toggleSelect={toggleSelect} toggleSelectAll={toggleSelectAll}
+              startUpgrade={startUpgrade} cancelUpgrade={cancelUpgrade} t={t}
+            />
+          )}
+          {activeTab === 'store' && (
+            <StoreTab 
+              socket={socket} SERVER_URL={SERVER_URL} logs={logs} setLogs={setLogs}
+              isProcessing={isProcessing} setIsProcessing={setIsProcessing} t={t}
+            />
+          )}
+          {activeTab === 'installed' && (
+            <InstalledTab 
+              socket={socket} SERVER_URL={SERVER_URL} logs={logs} setLogs={setLogs}
+              isProcessing={isProcessing} setIsProcessing={setIsProcessing} t={t}
+            />
+          )}
+          {activeTab === 'backup' && (
+            <BackupTab SERVER_URL={SERVER_URL} t={t} />
+          )}
         </div>
-        <div className="glass-panel stat-card">
-          <div className="stat-icon green">
-            <Download size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>{t.selected}</h3>
-            <p>{selectedApps.size}</p>
-          </div>
-        </div>
-        <div className="glass-panel stat-card" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
-            <button className="btn btn-primary" style={{ flex: 1 }} onClick={checkUpdates} disabled={loading || isUpgrading}>
-              {loading ? <div className="loading-spinner" /> : t.checkUpdates}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-panel p-4 animate-fade-in" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>Uygulamalar</h2>
-            <button 
-              className="btn btn-secondary" 
-              style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
-              onClick={checkUpdates} 
-              disabled={loading || isUpgrading}
-              title={t.checkUpdates}
-            >
-              <RefreshCw size={18} className={loading ? "spin-animation" : ""} />
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            {isUpgrading ? (
-               <button className="btn btn-secondary" onClick={cancelUpgrade} style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}>
-                 {t.cancel}
-               </button>
-            ) : (
-              <>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={() => startUpgrade('select')}
-                  disabled={selectedApps.size === 0 || apps.length === 0}
-                >
-                  {t.upgradeSelected}
-                </button>
-                <button 
-                  className="btn btn-primary" 
-                  onClick={() => startUpgrade('all')}
-                  disabled={apps.length === 0}
-                >
-                  {t.upgradeAll}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: '50px' }}>
-                  <input 
-                    type="checkbox" 
-                    className="checkbox-custom"
-                    checked={apps.length > 0 && selectedApps.size === apps.length}
-                    onChange={toggleSelectAll}
-                    disabled={apps.length === 0}
-                  />
-                </th>
-                <th>{t.appName}</th>
-                <th>{t.id}</th>
-                <th>{t.currentVer}</th>
-                <th>{t.newVer}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && apps.length === 0 ? (
-                 <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
-                     <div className="loading-spinner"></div>
-                   </td>
-                 </tr>
-              ) : apps.length === 0 ? (
-                 <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)' }}>
-                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.7 }}>
-                       <PackageOpen size={48} />
-                       <span style={{ fontSize: '1.1rem' }}>{t.noUpdates}</span>
-                     </div>
-                   </td>
-                 </tr>
-              ) : (
-                apps.map((app, index) => (
-                  <tr key={app.id || index}>
-                    <td>
-                      <input 
-                        type="checkbox" 
-                        className="checkbox-custom"
-                        checked={selectedApps.has(app.id)}
-                        onChange={() => toggleSelect(app.id)}
-                      />
-                    </td>
-                    <td style={{ fontWeight: '500' }}>{app.name}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{app.id}</td>
-                    <td><span className="badge">{app.version}</span></td>
-                    <td><span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--success-color)' }}>{app.available}</span></td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {(isUpgrading || logs.length > 0) && (
-           <Terminal logs={logs} isRunning={isUpgrading} />
-        )}
       </div>
 
       <footer style={{ textAlign: 'center', marginTop: '1rem', paddingBottom: '1rem', opacity: 0.8 }}>

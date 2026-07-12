@@ -5,6 +5,9 @@ const { spawn, exec } = require('child_process');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const notifier = require('node-notifier');
+const cron = require('node-cron');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -84,6 +87,69 @@ function parseWingetOutput(output) {
   return { apps, raw: output };
 }
 
+// Helper to parse winget list output
+function parseWingetListOutput(output) {
+  if (!output) return { apps: [], raw: '' };
+  const lines = output.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  const separatorIndex = lines.findIndex(line => line.match(/^-{20,}$/));
+  if (separatorIndex === -1) return { apps: [], raw: output };
+
+  const apps = [];
+  for (let i = separatorIndex + 1; i < lines.length; i++) {
+    const line = lines[i];
+    const parts = line.split(/\s+/);
+    if (parts.length >= 3) {
+      // winget list outputs: Name, Id, Version, [Available], Source
+      // It's tricky to parse. Let's extract Id and Version from the right.
+      let source = parts[parts.length - 1];
+      let version, id;
+      
+      if (source === 'winget' || source === 'msstore') {
+         source = parts.pop();
+         // If there's an available version, it's before source
+         if (parts[parts.length-1].match(/^[0-9]/) && parts[parts.length-2].match(/^[0-9]/)) {
+            parts.pop(); // available version
+         }
+         version = parts.pop();
+         id = parts.pop();
+      } else {
+         source = '';
+         version = parts.pop();
+         id = parts.pop();
+      }
+      
+      const name = parts.join(' ');
+      apps.push({ name, id, version, source });
+    }
+  }
+  return { apps, raw: output };
+}
+
+// Helper to parse winget search output
+function parseWingetSearchOutput(output) {
+  if (!output) return { apps: [], raw: '' };
+  const lines = output.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  const separatorIndex = lines.findIndex(line => line.match(/^-{20,}$/));
+  if (separatorIndex === -1) return { apps: [], raw: output };
+
+  const apps = [];
+  for (let i = separatorIndex + 1; i < lines.length; i++) {
+    const line = lines[i];
+    const parts = line.split(/\s+/);
+    if (parts.length >= 4) {
+      let source = parts.pop();
+      let match = parts.pop();
+      let version = parts.pop();
+      let id = parts.pop();
+      const name = parts.join(' ');
+      apps.push({ name, id, version, match, source });
+    }
+  }
+  return { apps, raw: output };
+}
+
 // Endpoint to check for upgrades
 app.get('/api/check', (req, res) => {
   // Use a timeout of 120 seconds because winget can be slow to sync repositories
@@ -104,6 +170,46 @@ app.get('/api/check', (req, res) => {
     
     const parsed = parseWingetOutput(out);
     res.json(parsed);
+  });
+});
+
+// Endpoint to list installed apps
+app.get('/api/list', (req, res) => {
+  exec('powershell -NoProfile -Command "winget list --accept-source-agreements"', { encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+    if (error && !stdout) return res.json({ apps: [], raw: stderr || error.message });
+    const out = stdout || '';
+    res.json(parseWingetListOutput(out));
+  });
+});
+
+// Endpoint to search apps
+app.get('/api/search', (req, res) => {
+  const query = req.query.q;
+  if (!query) return res.json({ apps: [], raw: '' });
+  
+  exec(`powershell -NoProfile -Command "winget search '${query.replace(/'/g, "''")}' --accept-source-agreements"`, { encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+    if (error && !stdout) return res.json({ apps: [], raw: stderr || error.message });
+    const out = stdout || '';
+    if (out.includes('No package found') || out.includes('Bulunamadı')) {
+       return res.json({ apps: [], raw: out });
+    }
+    res.json(parseWingetSearchOutput(out));
+  });
+});
+
+// Endpoint to export apps
+app.get('/api/export', (req, res) => {
+  const exportPath = path.join(__dirname, 'dathex-export.json');
+  exec(`powershell -NoProfile -Command "winget export -o '${exportPath}' --accept-source-agreements"`, { encoding: 'utf8', timeout: 120000 }, (error, stdout, stderr) => {
+    if (error) return res.status(500).json({ error: error.message });
+    if (fs.existsSync(exportPath)) {
+      res.download(exportPath, 'dathex-apps.json', () => {
+        // Clean up file after download
+        fs.unlinkSync(exportPath);
+      });
+    } else {
+      res.status(500).json({ error: 'Export failed' });
+    }
   });
 });
 
@@ -152,8 +258,44 @@ io.on('connection', (socket) => {
   socket.on('cancel-upgrade', () => {
     if (currentProcess) {
       currentProcess.kill();
-      socket.emit('log', { text: '\n[X] Upgrade process cancelled by user.\n' });
+      socket.emit('log', { text: '\n[X] Process cancelled by user.\n' });
     }
+  });
+
+  socket.on('start-install', (data) => {
+    const { id } = data;
+    if (!id) return;
+    
+    const args = ['install', '--id', `"${id}"`, '--accept-package-agreements', '--accept-source-agreements', '--silent'];
+    socket.emit('log', { text: `[~] Starting install: winget ${args.join(' ')}\n` });
+    
+    currentProcess = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    currentProcess.stdout.on('data', (data) => socket.emit('log', { text: data.toString() }));
+    currentProcess.stderr.on('data', (data) => socket.emit('log', { text: data.toString(), error: true }));
+
+    currentProcess.on('close', (code) => {
+      socket.emit('log', { text: `\n[✓] Install process exited with code ${code}\n` });
+      socket.emit('upgrade-finished', { code }); // reusing the same event to trigger refresh
+    });
+  });
+
+  socket.on('start-uninstall', (data) => {
+    const { id } = data;
+    if (!id) return;
+    
+    const args = ['uninstall', '--id', `"${id}"`, '--accept-source-agreements', '--silent'];
+    socket.emit('log', { text: `[~] Starting uninstall: winget ${args.join(' ')}\n` });
+    
+    currentProcess = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    currentProcess.stdout.on('data', (data) => socket.emit('log', { text: data.toString() }));
+    currentProcess.stderr.on('data', (data) => socket.emit('log', { text: data.toString(), error: true }));
+
+    currentProcess.on('close', (code) => {
+      socket.emit('log', { text: `\n[✓] Uninstall process exited with code ${code}\n` });
+      socket.emit('upgrade-finished', { code }); // reusing the same event to trigger refresh
+    });
   });
 
   socket.on('disconnect', () => {
@@ -203,4 +345,27 @@ app.use((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`DatHex Server running on http://localhost:${PORT}`);
+});
+
+// Auto-Updater Cron Job (Runs every 6 hours)
+cron.schedule('0 */6 * * *', () => {
+  console.log('[Auto-Updater] Checking for winget upgrades in the background...');
+  exec('powershell -NoProfile -Command "winget upgrade --accept-source-agreements"', { encoding: 'utf8', timeout: 120000 }, (error, stdout) => {
+    if (error || !stdout) return;
+    
+    const out = stdout || '';
+    if (out.includes('No installed package found') || out.includes('No upgrades available') || out.includes('Bulunamadı') || out.includes('yükseltme yok')) {
+       return;
+    }
+    
+    const parsed = parseWingetOutput(out);
+    if (parsed.apps && parsed.apps.length > 0) {
+      notifier.notify({
+        title: 'DatHex V2 - Güncelleme Mevcut',
+        message: `${parsed.apps.length} adet uygulama için güncelleme bulundu. DatHex'i açarak tek tıkla güncelleyebilirsiniz.`,
+        icon: path.join(__dirname, '../client/public/favicon.svg'),
+        appID: 'DatHex V2'
+      });
+    }
+  });
 });
