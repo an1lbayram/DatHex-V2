@@ -129,4 +129,3 @@ Projeye katkı sağlamak, hata bildirmek veya yeni özellik önermek isterseniz 
 Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
 
 ---
-<p align="center">&lt;/&gt; an1lbayram tarafından ❤️ ile geliştirilmiştir</p>
