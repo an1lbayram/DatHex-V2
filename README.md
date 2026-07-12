@@ -12,6 +12,10 @@ DatHex V2 is a modern, premium web-based graphical user interface (GUI) and back
 ## ✨ Key Features
 
 - **One-Click Upgrades:** Scan your system for outdated applications and upgrade them selectively or all at once.
+- **App Store Experience:** Search through Winget's massive repository and install new applications directly from the sleek interface.
+- **Uninstaller:** View all your installed applications and cleanly remove unwanted ones with a single click.
+- **Backup & Restore:** Export your entire software list as a `.json` backup file, allowing for 1-click restoration on a new PC.
+- **Silent Auto-Updater:** A built-in background job checks for updates every 6 hours and sends a Windows Toast Notification if anything is outdated.
 - **Real-Time Terminal:** A built-in, animated web terminal powered by Socket.IO that streams live `winget` execution logs directly to the UI.
 - **Premium Glassmorphism Design:** A modern, state-of-the-art interface featuring smooth micro-animations, glowing gradients, and polished typography.
 - **Dark/Light Mode Support:** Seamlessly toggle between dark and light themes with fluid CSS transitions. Your preference is automatically saved.
@@ -79,6 +83,10 @@ DatHex V2, **Windows Paket Yöneticisi (Winget)** için geliştirilmiş modern, 
 ## ✨ Öne Çıkan Özellikler
 
 - **Tek Tıkla Güncelleme:** Sisteminizdeki eski uygulamaları tarayın ve ister tek tek isterseniz de tümünü aynı anda güncelleyin.
+- **Uygulama Mağazası (App Store):** Winget'in devasa kütüphanesinde dilediğiniz programı aratıp sıfırdan kurun.
+- **Gelişmiş Kaldırıcı (Uninstaller):** Bilgisayarınızdaki tüm uygulamaları listeyip istemediklerinizi saniyeler içinde silin.
+- **Yedekle ve Geri Yükle:** Kurulu olan tüm uygulamalarınızın haritasını `.json` olarak dışa aktarın, format sonrası tek tıkla geri yükleyin.
+- **Arka Plan Güncelleyici (Auto-Updater):** DatHex açık kaldığı sürece arka planda her 6 saatte bir sessizce güncelleme tarar ve masaüstü bildirimi gönderir.
 - **Gerçek Zamanlı Terminal:** Socket.IO altyapısıyla çalışan, `winget` loglarını anlık olarak arayüze aktaran yerleşik, animasyonlu bir web terminali.
 - **Premium Glassmorphism Tasarımı:** Mikro animasyonlar, parlak geçişler ve özel tipografi ile donatılmış modern bir arayüz.
 - **Karanlık/Aydınlık Mod (Dark/Light):** Akıcı geçişlerle (transitions) çalışan tema desteği. Tercihiniz tarayıcınıza kaydedilir.
