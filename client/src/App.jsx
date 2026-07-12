@@ -164,7 +164,7 @@ function App() {
     <div className="app-container animate-fade-in">
       <header>
         <div className="title-group">
-          <h1><TerminalSquare color="#3b82f6" size={36} /> {t.title} 2.0</h1>
+          <h1><TerminalSquare color="#3b82f6" size={36} /> {t.title} V2</h1>
           <p>{t.subtitle}</p>
           <a href="https://an1lbayram.github.io/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--accent-color)', textDecoration: 'none', marginTop: '0.25rem', display: 'inline-block', fontWeight: '500' }}>
             &lt;/&gt; Created by an1lbayram

@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>DatHex 2.0 🚀</h1>
+  <h1>DatHex V2 🚀</h1>
   <p><em>English | <a href="#türkçe">Türkçe</a></em></p>
 </div>
 
-DatHex 2.0 is a modern, premium web-based graphical user interface (GUI) and background service wrapper for the **Windows Package Manager (Winget)**. Built to make app management effortless and visually stunning, DatHex eliminates the need for manual terminal commands by providing a sleek, glassmorphic UI to scan, manage, and upgrade your installed applications with a single click.
+DatHex V2 is a modern, premium web-based graphical user interface (GUI) and background service wrapper for the **Windows Package Manager (Winget)**. Built to make app management effortless and visually stunning, DatHex eliminates the need for manual terminal commands by providing a sleek, glassmorphic UI to scan, manage, and upgrade your installed applications with a single click.
 
 <p align="center">
   <b>Created by <a href="https://an1lbayram.github.io/">an1lbayram</a></b>
@@ -66,11 +66,11 @@ This project is licensed under the [MIT License](LICENSE).
 <br>
 
 <div align="center" id="türkçe">
-  <h1>DatHex 2.0 🚀</h1>
+  <h1>DatHex V2 🚀</h1>
   <p><em><a href="#">English</a> | Türkçe</em></p>
 </div>
 
-DatHex 2.0, **Windows Paket Yöneticisi (Winget)** için geliştirilmiş modern, premium bir web arayüzü (GUI) ve arka plan servisidir. Uygulama yönetimini zahmetsiz ve görsel olarak kusursuz hale getirmek için tasarlanan DatHex, manuel terminal komutlarına olan ihtiyacı ortadan kaldırır. Sahip olduğu şık glassmorphism tasarımı ile sisteminizdeki uygulamaları tarayabilir, yönetebilir ve tek tıkla güncelleyebilirsiniz.
+DatHex V2, **Windows Paket Yöneticisi (Winget)** için geliştirilmiş modern, premium bir web arayüzü (GUI) ve arka plan servisidir. Uygulama yönetimini zahmetsiz ve görsel olarak kusursuz hale getirmek için tasarlanan DatHex, manuel terminal komutlarına olan ihtiyacı ortadan kaldırır. Sahip olduğu şık glassmorphism tasarımı ile sisteminizdeki uygulamaları tarayabilir, yönetebilir ve tek tıkla güncelleyebilirsiniz.
 
 <p align="center">
   <b><a href="https://an1lbayram.github.io/">an1lbayram</a> tarafından geliştirilmiştir</b>

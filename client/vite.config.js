@@ -9,8 +9,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'DatHex 2.0',
-        short_name: 'DatHex',
+        name: 'DatHex V2',
+        short_name: 'DatHex V2',
         description: 'Windows Winget Mass Upgrader',
         theme_color: '#0f111a',
         background_color: '#0f111a',
