@@ -7,11 +7,11 @@ function InstalledTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsPr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchInstalled = async () => {
+  const fetchInstalled = async (force = false) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${SERVER_URL}/api/list`);
+      const res = await fetch(`${SERVER_URL}/api/list${force ? '?force=true' : ''}`);
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
       setApps(data.apps || []);
@@ -43,7 +43,7 @@ function InstalledTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsPr
           <button 
             className="btn btn-secondary" 
             style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} 
-            onClick={fetchInstalled} 
+            onClick={() => fetchInstalled(true)} 
             disabled={loading || isProcessing}
             title={t.checkUpdates}
           >

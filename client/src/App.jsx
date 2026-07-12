@@ -135,11 +135,11 @@ function App() {
     return () => newSocket.close();
   }, [lang]);
 
-  const checkUpdates = async () => {
+  const checkUpdates = async (force = false) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${SERVER_URL}/api/check`);
+      const res = await fetch(`${SERVER_URL}/api/check${force ? '?force=true' : ''}`);
       if (!res.ok) throw new Error('Network error');
       const data = await res.json();
       setApps(data.apps || []);
@@ -218,6 +218,7 @@ function App() {
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
           </div>
         </div>
+
       </header>
 
       {error && (

@@ -29,6 +29,12 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 const PORT = 3001;
 
+const cache = {
+  check: { data: null, timestamp: 0 },
+  list: { data: null, timestamp: 0 }
+};
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 // Helper to parse winget upgrade output
 function parseWingetOutput(output) {
   if (!output) return { apps: [], raw: '' };
@@ -152,8 +158,13 @@ function parseWingetSearchOutput(output) {
 
 // Endpoint to check for upgrades
 app.get('/api/check', (req, res) => {
+  const force = req.query.force === 'true';
+  if (!force && cache.check.data && (Date.now() - cache.check.timestamp < CACHE_TTL)) {
+    return res.json(cache.check.data);
+  }
+
   // Use a timeout of 120 seconds because winget can be slow to sync repositories
-  exec('powershell -NoProfile -Command "winget upgrade --accept-source-agreements"', { encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+  exec('powershell -NoProfile -Command "winget upgrade --accept-source-agreements --disable-interactivity"', { encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
     // If it errored
     if (error) {
       console.error("Winget check error:", error.message);
@@ -165,20 +176,33 @@ app.get('/api/check', (req, res) => {
     
     const out = stdout || '';
     if (out.includes('No installed package found') || out.includes('No upgrades available') || out.includes('Bulunamadı') || out.includes('yükseltme yok')) {
-       return res.json({ apps: [], raw: out });
+       const parsed = { apps: [], raw: out };
+       cache.check.data = parsed;
+       cache.check.timestamp = Date.now();
+       return res.json(parsed);
     }
     
     const parsed = parseWingetOutput(out);
+    cache.check.data = parsed;
+    cache.check.timestamp = Date.now();
     res.json(parsed);
   });
 });
 
 // Endpoint to list installed apps
 app.get('/api/list', (req, res) => {
-  exec('powershell -NoProfile -Command "winget list --accept-source-agreements"', { encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+  const force = req.query.force === 'true';
+  if (!force && cache.list.data && (Date.now() - cache.list.timestamp < CACHE_TTL)) {
+    return res.json(cache.list.data);
+  }
+
+  exec('powershell -NoProfile -Command "winget list --accept-source-agreements --disable-interactivity"', { encoding: 'utf8', timeout: 120000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
     if (error && !stdout) return res.json({ apps: [], raw: stderr || error.message });
     const out = stdout || '';
-    res.json(parseWingetListOutput(out));
+    const parsed = parseWingetListOutput(out);
+    cache.list.data = parsed;
+    cache.list.timestamp = Date.now();
+    res.json(parsed);
   });
 });
 
@@ -187,7 +211,7 @@ app.get('/api/search', (req, res) => {
   const query = req.query.q;
   if (!query) return res.json({ apps: [], raw: '' });
   
-  exec(`powershell -NoProfile -Command "winget search '${query.replace(/'/g, "''")}' --accept-source-agreements"`, { encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
+  exec(`powershell -NoProfile -Command "winget search '${query.replace(/'/g, "''")}' --accept-source-agreements --disable-interactivity"`, { encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
     if (error && !stdout) return res.json({ apps: [], raw: stderr || error.message });
     const out = stdout || '';
     if (out.includes('No package found') || out.includes('Bulunamadı')) {
@@ -251,6 +275,7 @@ io.on('connection', (socket) => {
 
     currentProcess.on('close', (code) => {
       socket.emit('log', { text: `\n[✓] Upgrade process exited with code ${code}\n` });
+      cache.check.data = null; // Invalidate cache after upgrade
       socket.emit('upgrade-finished', { code });
     });
   });
@@ -276,6 +301,8 @@ io.on('connection', (socket) => {
 
     currentProcess.on('close', (code) => {
       socket.emit('log', { text: `\n[✓] Install process exited with code ${code}\n` });
+      cache.list.data = null; // Invalidate cache
+      cache.check.data = null;
       socket.emit('upgrade-finished', { code }); // reusing the same event to trigger refresh
     });
   });
@@ -294,6 +321,8 @@ io.on('connection', (socket) => {
 
     currentProcess.on('close', (code) => {
       socket.emit('log', { text: `\n[✓] Uninstall process exited with code ${code}\n` });
+      cache.list.data = null; // Invalidate cache
+      cache.check.data = null;
       socket.emit('upgrade-finished', { code }); // reusing the same event to trigger refresh
     });
   });

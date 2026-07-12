@@ -29,7 +29,7 @@ function UpgradesTab({
         </div>
         <div className="glass-panel stat-card" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
           <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
-            <button className="btn btn-primary" style={{ flex: 1 }} onClick={checkUpdates} disabled={loading || isUpgrading}>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => checkUpdates(true)} disabled={loading || isUpgrading}>
               {loading ? <div className="loading-spinner" /> : t.checkUpdates}
             </button>
           </div>
