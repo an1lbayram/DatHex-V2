@@ -200,7 +200,7 @@ function App() {
         <div className="title-group">
           <h1><TerminalSquare color="#3b82f6" size={36} /> {t.title} V2</h1>
           <p>{t.subtitle}</p>
-          <a href="https://an1lbayram.github.io/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--accent-color)', textDecoration: 'none', marginTop: '0.25rem', display: 'inline-block', fontWeight: '500' }}>
+          <a href="https://an1lbayram-github-io.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--accent-color)', textDecoration: 'none', marginTop: '0.25rem', display: 'inline-block', fontWeight: '500' }}>
             &lt;/&gt; Created by an1lbayram
           </a>
         </div>
@@ -259,7 +259,7 @@ function App() {
       </div>
 
       <footer style={{ textAlign: 'center', marginTop: '1rem', paddingBottom: '1rem', opacity: 0.8 }}>
-        <a href="https://an1lbayram.github.io/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = 'var(--accent-color)'} onMouseOut={e => e.target.style.color = 'var(--text-secondary)'}>
+        <a href="https://an1lbayram-github-io.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = 'var(--accent-color)'} onMouseOut={e => e.target.style.color = 'var(--text-secondary)'}>
           &lt;/&gt; Created by an1lbayram
         </a>
       </footer>
