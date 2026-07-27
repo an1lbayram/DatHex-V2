@@ -1,139 +1,110 @@
-<div align="center">
-  <h1>DatHex V2 🚀</h1>
-  <p><em>English | <a href="#türkçe">Türkçe</a></em></p>
-</div>
+# 🌐 DatHex V2 - Web Based Windows Application & System Manager
 
-DatHex V2 is a modern, premium web-based graphical user interface (GUI) and background service wrapper for the **Windows Package Manager (Winget)**. Built to make app management effortless and visually stunning, DatHex eliminates the need for manual terminal commands by providing a sleek, glassmorphic UI to scan, manage, and upgrade your installed applications with a single click.
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express)
+![Socket.io](https://img.shields.io/badge/Socket.io-4-010101?logo=socketdotio)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-<p align="center">
-  <b>Created by <a href="https://an1lbayram.github.io/">an1lbayram</a></b>
-</p>
-
-## ✨ Key Features
-
-- **One-Click Upgrades:** Scan your system for outdated applications and upgrade them selectively or all at once.
-- **App Store Experience:** Search through Winget's massive repository and install new applications directly from the sleek interface.
-- **Uninstaller:** View all your installed applications and cleanly remove unwanted ones with a single click.
-- **Backup & Restore:** Export your entire software list as a `.json` backup file, allowing for 1-click restoration on a new PC.
-- **Silent Auto-Updater:** A built-in background job checks for updates every 6 hours and sends a Windows Toast Notification if anything is outdated.
-- **Real-Time Terminal:** A built-in, animated web terminal powered by Socket.IO that streams live `winget` execution logs directly to the UI.
-- **Premium Glassmorphism Design:** A modern, state-of-the-art interface featuring smooth micro-animations, glowing gradients, and polished typography.
-- **Dark/Light Mode Support:** Seamlessly toggle between dark and light themes with fluid CSS transitions. Your preference is automatically saved.
-- **Language Support (TR/EN):** Built-in i18n support allowing users to switch between Turkish and English instantly.
-- **PWA Ready:** Install DatHex as a Progressive Web App (PWA) for a native desktop-like experience.
-- **Custom DOS-Compatible Launcher:** A specially encoded `DatHex.bat` file ensures perfect Turkish character rendering in the Windows command prompt, starting both the server and client effortlessly.
-
-## 🛠️ Technology Stack
-
-- **Frontend:** React, Vite, Vanilla CSS (Custom Design System), Lucide-React
-- **Backend:** Node.js, Express 5.0, Socket.IO
-- **System Integration:** Windows Package Manager (`winget`), `child_process`
-
-## 🚀 Installation & Usage
-
-### Prerequisites
-- **Windows 10/11** with [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) installed.
-- **Node.js** (v18 or higher recommended).
-
-### Setup
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/an1lbayram/DatHex-V2.git
-   ```
-2. Install server dependencies:
-   ```bash
-   cd server
-   npm install
-   ```
-3. Install client dependencies and build the frontend:
-   ```bash
-   cd ../client
-   npm install
-   npm run build
-   ```
-
-### Running DatHex
-Simply double-click the **`DatHex.bat`** file located in the root directory. 
-
-The batch file will automatically:
-1. Boot up the Node.js backend server in the background.
-2. Launch your default web browser to `http://localhost:3001`.
-
-## 🤝 Contributing
-Contributions, issues, and feature requests are welcome.
-
-## 📝 License
-This project is licensed under the [MIT License](LICENSE).
+**DatHex V2**, Windows sisteminizde kurulu olan yazılımları web tabanlı modern bir arayüzden yönetmenizi sağlayan yeni nesil bir sistem yönetim paneli ve uygulama mağazasıdır. **React 19**, **Vite**, **Express** ve **Socket.io** altyapısıyla canlı terminal çıktısı, anlık güncelleme takibi ve sistem yedekleme özellikleri sunar.
 
 ---
 
-<br>
+## ✨ Özellikler
 
-<div align="center" id="türkçe">
-  <h1>DatHex V2 🚀</h1>
-  <p><em><a href="#">English</a> | Türkçe</em></p>
-</div>
-
-DatHex V2, **Windows Paket Yöneticisi (Winget)** için geliştirilmiş modern, premium bir web arayüzü (GUI) ve arka plan servisidir. Uygulama yönetimini zahmetsiz ve görsel olarak kusursuz hale getirmek için tasarlanan DatHex, manuel terminal komutlarına olan ihtiyacı ortadan kaldırır. Sahip olduğu şık glassmorphism tasarımı ile sisteminizdeki uygulamaları tarayabilir, yönetebilir ve tek tıkla güncelleyebilirsiniz.
-
-<p align="center">
-  <b><a href="https://an1lbayram.github.io/">an1lbayram</a> tarafından geliştirilmiştir</b>
-</p>
-
-## ✨ Öne Çıkan Özellikler
-
-- **Tek Tıkla Güncelleme:** Sisteminizdeki eski uygulamaları tarayın ve ister tek tek isterseniz de tümünü aynı anda güncelleyin.
-- **Uygulama Mağazası (App Store):** Winget'in devasa kütüphanesinde dilediğiniz programı aratıp sıfırdan kurun.
-- **Gelişmiş Kaldırıcı (Uninstaller):** Bilgisayarınızdaki tüm uygulamaları listeyip istemediklerinizi saniyeler içinde silin.
-- **Yedekle ve Geri Yükle:** Kurulu olan tüm uygulamalarınızın haritasını `.json` olarak dışa aktarın, format sonrası tek tıkla geri yükleyin.
-- **Arka Plan Güncelleyici (Auto-Updater):** DatHex açık kaldığı sürece arka planda her 6 saatte bir sessizce güncelleme tarar ve masaüstü bildirimi gönderir.
-- **Gerçek Zamanlı Terminal:** Socket.IO altyapısıyla çalışan, `winget` loglarını anlık olarak arayüze aktaran yerleşik, animasyonlu bir web terminali.
-- **Premium Glassmorphism Tasarımı:** Mikro animasyonlar, parlak geçişler ve özel tipografi ile donatılmış modern bir arayüz.
-- **Karanlık/Aydınlık Mod (Dark/Light):** Akıcı geçişlerle (transitions) çalışan tema desteği. Tercihiniz tarayıcınıza kaydedilir.
-- **Çift Dil Desteği (TR/EN):** Uygulama içi anlık olarak Türkçe ve İngilizce dilleri arasında geçiş yapabilme imkanı.
-- **PWA Desteği:** DatHex'i masaüstü uygulaması gibi kullanmak üzere (PWA) doğrudan bilgisayarınıza yükleyebilirsiniz.
-- **Özel DOS Başlatıcı:** Türkçe karakterleri komut satırında sorunsuz gösteren ve hem sunucuyu hem de arayüzü tek tıkla başlatan özel kodlanmış `DatHex.bat` dosyası.
-
-## 🛠️ Kullanılan Teknolojiler
-
-- **Frontend:** React, Vite, Vanilla CSS, Lucide-React
-- **Backend:** Node.js, Express 5.0, Socket.IO
-- **Sistem Entegrasyonu:** Windows Package Manager (`winget`), `child_process`
-
-## 🚀 Kurulum ve Kullanım
-
-### Gereksinimler
-- **Windows 10/11** ([Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) yüklü olmalıdır).
-- **Node.js** (v18 veya üzeri önerilir).
-
-### Kurulum
-1. Repoyu klonlayın:
-   ```bash
-   git clone https://github.com/an1lbayram/DatHex-V2.git
-   ```
-2. Sunucu bağımlılıklarını yükleyin:
-   ```bash
-   cd server
-   npm install
-   ```
-3. İstemci (Frontend) bağımlılıklarını yükleyip derleyin:
-   ```bash
-   cd ../client
-   npm install
-   npm run build
-   ```
-
-### DatHex'i Çalıştırma
-Proje ana dizinindeki **`DatHex.bat`** dosyasına çift tıklamanız yeterlidir.
-
-Batch dosyası arka planda otomatik olarak:
-1. Node.js sunucusunu başlatır.
-2. Sizi doğrudan `http://localhost:3001` adresine, varsayılan tarayıcınıza yönlendirir.
-
-## 🤝 Katkıda Bulunma
-Projeye katkı sağlamak, hata bildirmek veya yeni özellik önermek isterseniz GitHub üzerinden Pull Request veya Issue açabilirsiniz.
-
-## 📝 Lisans
-Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
+- 🖥️ **Web Tabanlı Kontrol Paneli:** Sistem yönetimi için şık, hızlı ve responsive arayüz (Framer Motion animasyonları ile).
+- 🔄 **Canlı Terminal & Log Takibi:** Socket.io entegrasyonu ile `winget` işlemlerini anlık olarak web ekranında izleme.
+- 📦 **Uygulama Mağazası (Store Tab):** Yeni uygulamaları keşfetme ve tek tıkla kurma.
+- 📋 **Yüklü Yazılımlar (Installed Tab):** Sisteminizdeki tüm programları listeleme ve kaldırma.
+- 🚀 **Güncellemeler (Upgrades Tab):** Güncellenebilir uygulamaları tespit edip tek tıkla yenileme.
+- 💾 **Sistem Yedekleme (Backup Tab):** Yapılandırmaları ve yedekleri yönetme.
+- 🔔 **Masaüstü Bildirimleri:** `node-notifier` ile işlemler tamamlandığında Windows bildirimi alma.
 
 ---
+
+## 💻 Sistem Gereksinimleri
+
+1. **Windows 10 veya Windows 11**
+2. **Node.js** (v18.0.0 veya üzeri): [Node.js İndir](https://nodejs.org/)
+3. **Git**: [Git İndir](https://git-scm.com/)
+4. **Winget:** (Windows Paket Yöneticisi)
+
+---
+
+## 🚀 Kurulum ve Çalıştırma
+
+### ⚡ Tek Satırda Kurulum ve Çalıştırma (Hızlı Başlangıç)
+
+Terminalinizde aşağıdaki komutu yapıştırarak sunucu ve istemci paketlerini yükleyip uygulamayı başlatabilirsiniz:
+
+```bash
+git clone https://github.com/an1lbayram/DatHex-V2.git && cd DatHex-V2 && cd server && npm install && cd ../client && npm install && cd .. && node server/index.js
+```
+
+*(Windows CMD kullanıyorsanız, `DatHex.bat` dosyasına çift tıklayarak da başlatabilirsiniz).*
+
+---
+
+### 📋 Adım Adım Kurulum (Hiç Bilmeyenler İçin)
+
+#### 1️⃣ Terminal / Komut Satırını Açın
+Windows Başlat menüsünden `PowerShell` veya `CMD` uygulamasını açın.
+
+#### 2️⃣ Depoyu Klonlayın
+Projeyi bilgisayarınıza indirmek için şu komutu çalıştırın:
+```bash
+git clone https://github.com/an1lbayram/DatHex-V2.git
+```
+
+#### 3️⃣ Proje Dizini İçine Geçin
+```bash
+cd DatHex-V2
+```
+
+#### 4️⃣ Sunucu (Server) Bağımlılıklarını Yükleyin
+```bash
+cd server
+npm install
+cd ..
+```
+
+#### 5️⃣ İstemci (Client) Bağımlılıklarını Yükleyin
+```bash
+cd client
+npm install
+cd ..
+```
+
+#### 6️⃣ Uygulamayı Başlatın
+Sunucuyu çalıştırmak için:
+```bash
+node server/index.js
+```
+*(Alternatif olarak proje ana dizinindeki `DatHex.bat` dosyasına tıklayabilirsiniz).*
+
+#### 7️⃣ Tarayıcıda Açın
+Tarayıcınızı açıp `http://localhost:3001` adresine gidin. DatHex V2 yönetim paneli karşınızda!
+
+---
+
+## 📂 Proje Yapısı
+
+```text
+DatHex-V2/
+├── DatHex.bat                # Windows başlatma scripti
+├── server/                   # Express + Socket.io backend (Winget entegrasyonu)
+│   ├── index.js              # Ana sunucu dosyası
+│   └── package.json          # Sunucu bağımlılıkları
+└── client/                   # React 19 + Vite frontend
+    ├── src/                  # React bileşenleri (Store, Upgrades, Backup, Terminal)
+    ├── vite.config.js        # Vite konfigürasyonu
+    └── package.json          # İstemci bağımlılıkları
+```
+
+---
+
+## 📄 Lisans
+
+Bu proje [MIT Lisansı](LICENSE) ile lisanslanmıştır.
+
+**Geliştirici:** [Anıl Bayram](https://github.com/an1lbayram)
