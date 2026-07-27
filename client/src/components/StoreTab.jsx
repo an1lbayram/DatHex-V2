@@ -41,8 +41,8 @@ function StoreTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsProces
       <div className="glass-panel p-4" style={{ padding: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1.5rem' }}>{t.menuStore}</h2>
         
-        <form onSubmit={searchApps} style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
+        <form onSubmit={searchApps} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 0 }}>
             <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             <input 
               type="text" 

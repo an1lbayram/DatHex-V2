@@ -37,11 +37,11 @@ function UpgradesTab({
       </div>
 
       <div className="glass-panel p-4" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>{t.menuUpgrades}</h2>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
             {isUpgrading ? (
                <button className="btn btn-secondary" onClick={cancelUpgrade} style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}>
                  {t.cancel}
