@@ -204,25 +204,26 @@ function App() {
             &lt;/&gt; Created by an1lbayram
           </a>
         </div>
-        <div className="language-switch" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="language-switch" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button 
             className="btn btn-secondary" 
-            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+            style={{ padding: '0.5rem', width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            aria-label={theme === 'dark' ? 'Açık Mod' : 'Karanlık Mod'}
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} onClick={() => setLang('tr')}>TR</button>
-            <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')}>EN</button>
+          <div style={{ display: 'flex', gap: '0.35rem' }}>
+            <button className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} onClick={() => setLang('tr')} aria-label="Türkçe Dili">TR</button>
+            <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')} aria-label="English Language">EN</button>
           </div>
         </div>
 
       </header>
 
       {error && (
-        <div className="glass-panel animate-fade-in" style={{ padding: '1rem', borderColor: 'var(--error-color)', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div className="glass-panel animate-fade-in" style={{ padding: '1rem', borderColor: 'var(--error-color)', display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
           <AlertCircle color="var(--error-color)" />
           <span style={{ color: 'var(--error-color)' }}>{error}</span>
         </div>
@@ -258,7 +259,7 @@ function App() {
         </div>
       </div>
 
-      <footer style={{ textAlign: 'center', marginTop: '1rem', paddingBottom: '1rem', opacity: 0.8 }}>
+      <footer style={{ textAlign: 'center', marginTop: '1.5rem', paddingBottom: '1rem', opacity: 0.85 }}>
         <a href="https://an1lbayram-github-io.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={e => e.target.style.color = 'var(--accent-color)'} onMouseOut={e => e.target.style.color = 'var(--text-secondary)'}>
           &lt;/&gt; Created by an1lbayram
         </a>
@@ -269,8 +270,9 @@ function App() {
           className="btn btn-primary animate-fade-in scroll-top-btn" 
           onClick={scrollTop} 
           title="Başa Dön"
+          aria-label="Başa Dön"
         >
-          <ArrowUp size={28} />
+          <ArrowUp size={24} />
         </button>
       )}
     </div>

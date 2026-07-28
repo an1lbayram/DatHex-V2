@@ -68,7 +68,7 @@ function UpgradesTab({
         </div>
 
         <div className="table-container">
-          <table>
+          <table className="responsive-table">
             <thead>
               <tr>
                 <th style={{ width: '50px' }}>
@@ -78,6 +78,7 @@ function UpgradesTab({
                     checked={apps.length > 0 && selectedApps.size === apps.length}
                     onChange={toggleSelectAll}
                     disabled={apps.length === 0}
+                    aria-label="Tümünü Seç"
                   />
                 </th>
                 <th>{t.appName}</th>
@@ -105,18 +106,19 @@ function UpgradesTab({
               ) : (
                 apps.map((app, index) => (
                   <tr key={app.id || index}>
-                    <td>
+                    <td data-label={t.selected || 'Seç'}>
                       <input 
                         type="checkbox" 
                         className="checkbox-custom"
                         checked={selectedApps.has(app.id)}
                         onChange={() => toggleSelect(app.id)}
+                        aria-label={`${app.name} seç`}
                       />
                     </td>
-                    <td style={{ fontWeight: '500' }}>{app.name}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{app.id}</td>
-                    <td><span className="badge">{app.version}</span></td>
-                    <td><span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--success-color)' }}>{app.available}</span></td>
+                    <td data-label={t.appName} style={{ fontWeight: '600' }}>{app.name}</td>
+                    <td data-label={t.id} style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', wordBreak: 'break-all' }}>{app.id}</td>
+                    <td data-label={t.currentVer}><span className="badge">{app.version}</span></td>
+                    <td data-label={t.newVer}><span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: 'var(--success-color)' }}>{app.available}</span></td>
                   </tr>
                 ))
               )}

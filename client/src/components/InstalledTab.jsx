@@ -59,14 +59,14 @@ function InstalledTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsPr
         )}
 
         <div className="table-container">
-          <table>
+          <table className="responsive-table">
             <thead>
               <tr>
                 <th>{t.appName}</th>
                 <th>{t.id}</th>
                 <th>{t.currentVer}</th>
                 <th>{t.source}</th>
-                <th style={{ width: '100px', textAlign: 'center' }}>{t.action}</th>
+                <th style={{ width: '120px', textAlign: 'center' }}>{t.action}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,16 +85,17 @@ function InstalledTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsPr
               ) : (
                 apps.map((app, index) => (
                   <tr key={index}>
-                    <td style={{ fontWeight: '500' }}>{app.name}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{app.id}</td>
-                    <td><span className="badge">{app.version}</span></td>
-                    <td><span className="badge" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>{app.source}</span></td>
-                    <td style={{ textAlign: 'center' }}>
+                    <td data-label={t.appName} style={{ fontWeight: '600' }}>{app.name}</td>
+                    <td data-label={t.id} style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', wordBreak: 'break-all' }}>{app.id}</td>
+                    <td data-label={t.currentVer}><span className="badge">{app.version}</span></td>
+                    <td data-label={t.source}><span className="badge" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa' }}>{app.source}</span></td>
+                    <td data-label={t.action} style={{ textAlign: 'center' }}>
                       <button 
                         className="btn btn-secondary" 
                         style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
                         onClick={() => uninstallApp(app.id)}
                         disabled={isProcessing}
+                        aria-label={`${app.name} kaldır`}
                       >
                         <Trash2 size={16} />
                       </button>
