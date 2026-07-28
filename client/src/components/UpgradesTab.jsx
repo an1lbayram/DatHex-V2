@@ -27,7 +27,7 @@ function UpgradesTab({
             <p>{selectedApps.size}</p>
           </div>
         </div>
-        <div className="glass-panel stat-card" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
+        <div className="glass-panel stat-card stat-card-action" style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center' }}>
           <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
             <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => checkUpdates(true)} disabled={loading || isUpgrading}>
               {loading ? <div className="loading-spinner" /> : t.checkUpdates}
@@ -37,11 +37,11 @@ function UpgradesTab({
       </div>
 
       <div className="glass-panel p-4" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="tab-header-actions">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>{t.menuUpgrades}</h2>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div className="action-buttons-group">
             {isUpgrading ? (
                <button className="btn btn-secondary" onClick={cancelUpgrade} style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}>
                  {t.cancel}
@@ -90,13 +90,13 @@ function UpgradesTab({
             <tbody>
               {loading && apps.length === 0 ? (
                  <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+                   <td colSpan="5" className="empty-state-cell" style={{ textAlign: 'center', padding: '2rem' }}>
                      <div className="loading-spinner"></div>
                    </td>
                  </tr>
               ) : apps.length === 0 ? (
                  <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)' }}>
+                   <td colSpan="5" className="empty-state-cell" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)' }}>
                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.7 }}>
                        <PackageOpen size={48} />
                        <span style={{ fontSize: '1.1rem' }}>{t.noUpdates}</span>

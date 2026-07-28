@@ -72,13 +72,13 @@ function InstalledTab({ socket, SERVER_URL, logs, setLogs, isProcessing, setIsPr
             <tbody>
               {loading && apps.length === 0 ? (
                  <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+                   <td colSpan="5" className="empty-state-cell" style={{ textAlign: 'center', padding: '2rem' }}>
                      <div className="loading-spinner"></div>
                    </td>
                  </tr>
               ) : apps.length === 0 ? (
                  <tr>
-                   <td colSpan="5" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)' }}>
+                   <td colSpan="5" className="empty-state-cell" style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)' }}>
                      {t.noResults}
                    </td>
                  </tr>

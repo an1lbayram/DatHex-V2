@@ -204,17 +204,16 @@ function App() {
             &lt;/&gt; Created by an1lbayram
           </a>
         </div>
-        <div className="language-switch" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="header-controls">
           <button 
-            className="btn btn-secondary" 
-            style={{ padding: '0.5rem', width: '42px', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}
+            className="btn btn-secondary theme-toggle-btn" 
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
             aria-label={theme === 'dark' ? 'Açık Mod' : 'Karanlık Mod'}
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <div style={{ display: 'flex', gap: '0.35rem' }}>
+          <div className="language-switch">
             <button className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} onClick={() => setLang('tr')} aria-label="Türkçe Dili">TR</button>
             <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => setLang('en')} aria-label="English Language">EN</button>
           </div>
