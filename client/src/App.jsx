@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { io } from 'socket.io-client';
 import { Settings, RefreshCw, Download, TerminalSquare, AlertCircle, Sun, Moon, ArrowUp, PackageOpen } from 'lucide-react';
 import Terminal from './components/Terminal';
@@ -274,6 +275,7 @@ function App() {
           <ArrowUp size={24} />
         </button>
       )}
+      <Analytics />
     </div>
   );
 }
