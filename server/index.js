@@ -11,18 +11,95 @@ const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
+
+// Whitelist of allowed origins. The production client URL can be supplied via
+// the ALLOWED_ORIGIN env var (comma-separated list supported).
+const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:5173', 'http://localhost:3000'];
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGIN
+  ? process.env.ALLOWED_ORIGIN.split(',').map(o => o.trim()).filter(Boolean)
+  : DEFAULT_ALLOWED_ORIGINS;
+
+function isOriginAllowed(origin) {
+  // Requests with no origin (e.g. same-origin, curl, server-to-server) are allowed.
+  if (!origin) return true;
+  return ALLOWED_ORIGINS.includes(origin);
+}
+
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST']
   }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for local web app to allow inline styles/scripts and external fonts
 }));
 app.use(express.json());
+
+// --- Simple in-memory rate limiter (per IP/socket, N requests per minute) ---
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 60; // per IP for HTTP /api/*
+const SOCKET_RATE_LIMIT_MAX_EVENTS = 20; // per socket per window for socket events
+
+function createRateLimiter(maxRequests, windowMs) {
+  const hits = new Map(); // key -> { count, resetAt }
+  // Periodically clean up stale entries so the map doesn't grow forever.
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of hits) {
+      if (now > entry.resetAt) hits.delete(key);
+    }
+  }, windowMs).unref();
+
+  return function isAllowed(key) {
+    const now = Date.now();
+    let entry = hits.get(key);
+    if (!entry || now > entry.resetAt) {
+      entry = { count: 0, resetAt: now + windowMs };
+      hits.set(key, entry);
+    }
+    entry.count += 1;
+    return entry.count <= maxRequests;
+  };
+}
+
+const isHttpRequestAllowed = createRateLimiter(RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_MS);
+const isSocketEventAllowed = createRateLimiter(SOCKET_RATE_LIMIT_MAX_EVENTS, RATE_LIMIT_WINDOW_MS);
+
+app.use('/api', (req, res, next) => {
+  if (!isHttpRequestAllowed(req.ip)) {
+    return res.status(429).json({ error: 'Too many requests, please slow down.' });
+  }
+  next();
+});
+
+// Whitelist for winget package IDs: letters, digits, dot, dash, underscore.
+const WINGET_ID_REGEX = /^[\w.\-]+$/;
+function isValidWingetId(id) {
+  return typeof id === 'string' && id.length > 0 && id.length <= 200 && WINGET_ID_REGEX.test(id);
+}
+
+// Whitelist for search queries: letters (incl. accented), digits, spaces, dash, dot, underscore.
+const SEARCH_QUERY_REGEX = /^[\p{L}\p{N} .\-_]+$/u;
+function isValidSearchQuery(query) {
+  return typeof query === 'string' && query.length > 0 && query.length <= 200 && SEARCH_QUERY_REGEX.test(query);
+}
 
 // Serve static files from the React frontend app
 app.use(express.static(path.join(__dirname, '../client/dist')));
@@ -210,14 +287,35 @@ app.get('/api/list', (req, res) => {
 app.get('/api/search', (req, res) => {
   const query = req.query.q;
   if (!query) return res.json({ apps: [], raw: '' });
-  
-  exec(`powershell -NoProfile -Command "winget search '${query.replace(/'/g, "''")}' --accept-source-agreements --disable-interactivity"`, { encoding: 'utf8', timeout: 60000, maxBuffer: 1024 * 1024 * 5 }, (error, stdout, stderr) => {
-    if (error && !stdout) return res.json({ apps: [], raw: stderr || error.message });
+  if (!isValidSearchQuery(query)) {
+    return res.status(400).json({ error: 'Invalid search query. Only letters, numbers, spaces, dashes, dots and underscores are allowed.' });
+  }
+
+  // Use array-args spawn instead of a PowerShell string wrapper to avoid injection.
+  const proc = spawn('winget', ['search', query, '--accept-source-agreements', '--disable-interactivity'], { windowsHide: true });
+
+  let stdout = '';
+  let stderr = '';
+  proc.stdout.on('data', (data) => { stdout += data.toString(); });
+  proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+  const timeout = setTimeout(() => {
+    proc.kill();
+  }, 60000);
+
+  proc.on('close', () => {
+    clearTimeout(timeout);
+    if (!stdout) return res.json({ apps: [], raw: stderr });
     const out = stdout || '';
     if (out.includes('No package found') || out.includes('Bulunamadı')) {
        return res.json({ apps: [], raw: out });
     }
     res.json(parseWingetSearchOutput(out));
+  });
+
+  proc.on('error', (error) => {
+    clearTimeout(timeout);
+    res.json({ apps: [], raw: error.message });
   });
 });
 
@@ -244,11 +342,20 @@ io.on('connection', (socket) => {
   let currentProcess = null;
 
   socket.on('start-upgrade', (data) => {
-    const { type, ids } = data; // type: 'all' or 'select'
-    
+    if (!isSocketEventAllowed(socket.id)) {
+      socket.emit('log', { text: '[ERROR] Too many requests. Please slow down.\n', error: true });
+      return;
+    }
+
+    const { type, ids } = data || {}; // type: 'all' or 'select'
+
     let args = ['upgrade', '--accept-package-agreements', '--accept-source-agreements', '--silent'];
-    
+
     if (type === 'select' && ids && ids.length > 0) {
+       if (!ids.every(isValidWingetId)) {
+          socket.emit('log', { text: '[ERROR] One or more package IDs are invalid.\n', error: true });
+          return;
+       }
        // We will process them one by one or create a bat script.
        // Actually, winget upgrade doesn't take multiple IDs. We need to run it multiple times.
        // We will handle it by spawning sequentially.
@@ -262,8 +369,8 @@ io.on('connection', (socket) => {
     }
 
     socket.emit('log', { text: `[~] Starting upgrade: winget ${args.join(' ')}\n` });
-    
-    currentProcess = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    currentProcess = spawn('winget', args, { windowsHide: true });
 
     currentProcess.stdout.on('data', (data) => {
       socket.emit('log', { text: data.toString() });
@@ -288,13 +395,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on('start-install', (data) => {
-    const { id } = data;
+    if (!isSocketEventAllowed(socket.id)) {
+      socket.emit('log', { text: '[ERROR] Too many requests. Please slow down.\n', error: true });
+      return;
+    }
+
+    const { id } = data || {};
     if (!id) return;
-    
-    const args = ['install', '--id', `"${id}"`, '--accept-package-agreements', '--accept-source-agreements', '--silent'];
+    if (!isValidWingetId(id)) {
+      socket.emit('log', { text: `[ERROR] Invalid package ID: ${id}\n`, error: true });
+      return;
+    }
+
+    const args = ['install', '--id', id, '--accept-package-agreements', '--accept-source-agreements', '--silent'];
     socket.emit('log', { text: `[~] Starting install: winget ${args.join(' ')}\n` });
-    
-    currentProcess = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    currentProcess = spawn('winget', args, { windowsHide: true });
 
     currentProcess.stdout.on('data', (data) => socket.emit('log', { text: data.toString() }));
     currentProcess.stderr.on('data', (data) => socket.emit('log', { text: data.toString(), error: true }));
@@ -308,13 +424,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on('start-uninstall', (data) => {
-    const { id } = data;
+    if (!isSocketEventAllowed(socket.id)) {
+      socket.emit('log', { text: '[ERROR] Too many requests. Please slow down.\n', error: true });
+      return;
+    }
+
+    const { id } = data || {};
     if (!id) return;
-    
-    const args = ['uninstall', '--id', `"${id}"`, '--accept-source-agreements', '--silent'];
+    if (!isValidWingetId(id)) {
+      socket.emit('log', { text: `[ERROR] Invalid package ID: ${id}\n`, error: true });
+      return;
+    }
+
+    const args = ['uninstall', '--id', id, '--accept-source-agreements', '--silent'];
     socket.emit('log', { text: `[~] Starting uninstall: winget ${args.join(' ')}\n` });
-    
-    currentProcess = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    currentProcess = spawn('winget', args, { windowsHide: true });
 
     currentProcess.stdout.on('data', (data) => socket.emit('log', { text: data.toString() }));
     currentProcess.stderr.on('data', (data) => socket.emit('log', { text: data.toString(), error: true }));
@@ -343,11 +468,19 @@ function runSequentialUpgrades(ids, socket) {
     }
 
     const id = ids[index];
-    const args = ['upgrade', '--id', `"${id}"`, '--accept-package-agreements', '--accept-source-agreements', '--silent'];
-    
+
+    if (!isValidWingetId(id)) {
+       socket.emit('log', { text: `[ERROR] Invalid package ID skipped: ${id}\n`, error: true });
+       index++;
+       next();
+       return;
+    }
+
+    const args = ['upgrade', '--id', id, '--accept-package-agreements', '--accept-source-agreements', '--silent'];
+
     socket.emit('log', { text: `\n[~] Upgrading: ${id}...\n` });
-    
-    const proc = spawn('powershell.exe', ['-NoProfile', '-Command', `winget ${args.join(' ')}`]);
+
+    const proc = spawn('winget', args, { windowsHide: true });
     
     proc.stdout.on('data', (data) => {
       socket.emit('log', { text: data.toString() });
@@ -372,7 +505,7 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '127.0.0.1', () => {
   console.log(`DatHex Server running on http://localhost:${PORT}`);
 });
 
