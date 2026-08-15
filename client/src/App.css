@@ -89,13 +89,14 @@ header {
 }
 
 .btn-primary {
-  background: var(--accent-color);
+  /* accent-hover (not accent-color) so white button text clears WCAG AA
+     4.5:1 contrast — accent-color alone is ~3.67:1 with white. */
+  background: var(--accent-hover);
   color: #fff;
   box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
@@ -369,9 +370,11 @@ tr:hover td {
 }
 
 .lang-btn.active {
-  background: var(--accent-color);
+  /* accent-hover (not accent-color) so white text clears WCAG AA 4.5:1
+     contrast — accent-color alone is ~3.67:1 with white. */
+  background: var(--accent-hover);
   color: white;
-  border-color: var(--accent-color);
+  border-color: var(--accent-hover);
 }
 
 /* Scroll to Top Button */
